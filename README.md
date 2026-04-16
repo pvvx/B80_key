@@ -5,8 +5,9 @@ Example of a BLE button with a thermometer on TLSR8208B (16KB RAM, 128KB Flash)
 <img width="347" height="309" alt="image" src="https://github.com/user-attachments/assets/38d35b24-377f-41cd-979d-ff2da4af2d78" />
 
 * Button: GPIO_PD2, Led: GPIO_PD6
-* Beacon format - BTHome v2
+* Beacon format - BTHome v2 (binkey supported)
 * Transferring button presses and releases with a counter, SoC temperature and battery parameters
+* Connect: Pin-Code supported 
 * Telink OTA supported
 * Average consumption in operating mode is 6 µA.
 
