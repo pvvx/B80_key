@@ -1,0 +1,121 @@
+/********************************************************************************************************
+ * @file    boot_save_retentionRAM_B80B.link
+ *
+ * @brief   This is the link file for BLE SDK
+ *
+ * @author  BLE GROUP
+ * @date    12,2021
+ *
+ * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *
+ *          Licensed under the Apache License, Version 2.0 (the "License");
+ *          you may not use this file except in compliance with the License.
+ *          You may obtain a copy of the License at
+ *
+ *              http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *          Unless required by applicable law or agreed to in writing, software
+ *          distributed under the License is distributed on an "AS IS" BASIS,
+ *          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *          See the License for the specific language governing permissions and
+ *          limitations under the License.
+ *
+ *******************************************************************************************************/
+/* to tell the linker the program begin from __start label in cstartup.s, thus do not treat it as a unused symbol */
+ENTRY(__start)
+
+SECTIONS
+{
+    . = 0x0;
+    .vectors :
+    {
+    *(.vectors)
+    *(.vectors.*)	/* MUST as follows, when compile with -ffunction-sections -fdata-sections, session name may changed */
+    }
+    .ram_code :
+    {
+    *(.ram_code)
+    *(.ram_code.*)
+    }
+
+	
+    . = (((. + 3) / 4)*4);
+		PROVIDE(_dstored_ = . );
+
+    . = (0x840000 + _dstored_);
+    
+	.data :
+	      AT ( _dstored_ )
+	     {
+	. = (((. + 3) / 4)*4);
+	     PROVIDE(_start_data_ = . );
+	     *(.data);
+	     *(.data.*);
+	. = (((. + 3) / 4)*4);
+	     PROVIDE(_end_data_ = . );
+	     }
+		PROVIDE(_data_end_div_16_align_256_ = ( (_dstored_ + _end_data_ - _start_data_ + 255) / 256) * 16);
+	
+        	
+	    /* irk_stk is 4 word align */
+	. = (((. + 15) / 16)*16);
+		PROVIDE(_start_bss_ = .);
+	    .bss(NOLOAD) :
+	    AT ( _start_bss_ )
+	    {
+	    *(.sbss)
+	    *(.sbss.*)
+	    *(.bss)
+	    *(.bss.*)
+	    }
+		PROVIDE(_end_bss_ = .);
+		
+		PROVIDE(_start_text_ = ((((. + 255) / 256)*256) - 0x840000));
+		
+	. = _start_text_;
+	
+	.text :
+	    {
+	    *(.text)
+	    *(.text.*)
+	    }
+	.rodata :
+	    {
+	    *(.rodata)
+	    *(.rodata.*)
+	    }
+	
+	. = (((. + 3) / 4)*4);
+	    PROVIDE(_code_size_ = .);
+		PROVIDE(_rstored_ = .);
+		
+	. = (0x840900 + _start_text_);
+	 
+	.data_reload :
+	      AT ( _rstored_ )
+	    {
+	    . = (((. + 3) / 4)*4);
+	    PROVIDE(_data_reload_start_ = . );
+	    *(.data_reload)
+	    *(.data_reload.*)
+	    . = (((. + 3) / 4)*4);
+	    PROVIDE(_data_reload_end_ = . );     
+	    } 
+        PROVIDE(_sstored_ = _rstored_ + _data_reload_end_ - _data_reload_start_); 
+        PROVIDE(_ram_use_end_ = .);
+				
+	.sdk_version :
+	    AT ( _sstored_ )
+		{
+	. = (((. + 3) / 4)*4);
+		KEEP(*(.sdk_version));
+	    KEEP(*(.sdk_version.*));
+		}
+		
+		PROVIDE(_bin_size_ = _code_size_ + _data_reload_end_ - _data_reload_start_ + SIZEOF(.sdk_version) );
+		PROVIDE(_bin_size_div_16 = ( _bin_size_ + 15 ) / 16 );
+		PROVIDE(_ictag_start_ = 0x840000 + _start_text_ );
+		PROVIDE(_ictag_end_ = 0x840000 + _start_text_ + 0x100);
+}
+ASSERT((_end_bss_ - 0x840000) < (0x4000), "Error: Retention RAM size overflow.");
+ASSERT(_ram_use_end_ < (__SRAM_SIZE - 600), "Error: RAM size maybe overflow.");/*600byte is the stack size used when secure connect is not enabled.*/

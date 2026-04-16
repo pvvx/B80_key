@@ -1,0 +1,2 @@
+Telink BLE SDK_VERSION = 
+tc_ble_simple_sdk_v3.4.2.2
