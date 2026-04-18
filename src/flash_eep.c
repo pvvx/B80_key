@@ -2,7 +2,6 @@
  * flash_eep.c
  *
  *  EEP Version 2.0
- *
  *  Author: pvvx
  */
 //#include <stdint.h>
@@ -88,7 +87,7 @@ static inline void _flash_write_obj(u32 faddr, feep_obj_t * pobj)
  ------------------------------------*/
 FEEP_CODE_ATTR
 #if USE_EEP_BANKS
-LOCAL u32 get_addr_bscfg(u8 nv) {
+LOCAL u32 get_addr_bscfg(int nv) {
 	u32 faddr = (nv)? FMEMORY_EEP_BASE_ADDR2 : FMEMORY_EEP_BASE_ADDR1;
 #else
 LOCAL u32 get_addr_bscfg(void) {
@@ -188,17 +187,16 @@ LOCAL u32 get_addr_idobj(u32 faddr, fobj_head_t * pobj)
   ---------------------------------------------------------------------------*/
 FEEP_CODE_ATTR
 #if USE_EEP_BANKS
-LOCAL u32 pack_eep_fmem(u8 bank, u32 sec_faddr) {
+LOCAL u32 pack_eep_fmem(unsigned int bank, u32 sec_faddr) {
 	eep_printf("EEP#pack: %d\n", bank);
 #else
 LOCAL u32 pack_eep_fmem(u32 sec_faddr) {
 	eep_printf("EEP#pack\n");
 #endif
-	u8 buf_id[256>>3];
+	u8 buf_id[256>>3] = {0};
 	feep_obj_t fobj;
 	fobj_head_t rh;
 	u32 fnewseg, faddr, rdaddr, wraddr, endrdaddr;
-	memset((u8 *)buf_id, 0, sizeof(buf_id));
 	// вычислить следующий сектор банка и конец текущего сектора
 	fnewseg = sec_faddr + FLASH_SECTOR_SIZE;
 	endrdaddr = fnewseg;
@@ -291,10 +289,10 @@ LOCAL u32 pack_eep_fmem(u32 sec_faddr) {
 //-----------------------------------------------------------------------------
 FEEP_CODE_ATTR
 #if USE_EEP_BANKS
-s32 flash_write_cfg(void *ptr, u8 bank, u8 id, u8 size) {
+s32 flash_write_cfg(void *ptr, unsigned int bank, unsigned int id, size_t size) {
 	eep_printf("EEP#wr_obj[%d]: %d,%02x\n", size, bank, id);
 #else
-s32 flash_write_cfg(void *ptr, u8 id, u8 size) {
+s32 flash_write_cfg(void *ptr, unsigned int id, size_t size) {
 	eep_printf("EEP#wr_obj[%d]: %02x\n", size, id);
 #endif
 	u32 faddr, saddr;
@@ -391,10 +389,10 @@ void flash_erase_all_cfg(void) {
 //-----------------------------------------------------------------------------
 FEEP_CODE_ATTR
 #if USE_EEP_BANKS
-s32 flash_read_cfg(void *ptr, u8 bank, u8 id, u8 maxsize) {
+s32 flash_read_cfg(void *ptr, unsigned int bank, unsigned int id, size_t maxsize) {
 	eep_printf("EEP#rd_obj[%d]: %d,%02x\n", maxsize, bank, id);
 #else
-s32 flash_read_cfg(void *ptr, u8 id, u8 maxsize) {
+s32 flash_read_cfg(void *ptr, unsigned int id, size_t maxsize) {
 	eep_printf("EEP#rd_obj[%d]: %02x\n", maxsize, id);
 #endif
 	u32 faddr, saddr;

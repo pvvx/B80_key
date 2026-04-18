@@ -1,8 +1,7 @@
 /******************************************************************************
  * FileName: flash_eep.h
- * Description: FLASH
- * Alternate SDK 
- * Author: pvvx
+ *  EEP Version 2.0
+ *  Author: pvvx
  ******************************************************************************/
 #ifndef __FLASH_EEP_H_
 #define __FLASH_EEP_H_
@@ -40,11 +39,11 @@ typedef enum {
 } fmemory_errors_t;
 //-----------------------------------------------------------------------------
 #if USE_EEP_BANKS
-s32 flash_read_cfg(void *ptr, u8 nv, u8 id, u8 maxsize); // возврат: размер объекта последнего сохранения, -1 - не найден, -2 - error
-s32 flash_write_cfg(void *ptr, u8 nv, u8 id, u8 size);
+s32 flash_read_cfg(void *ptr, unsigned int nv, unsigned int id, size_t maxsize); // возврат: размер объекта последнего сохранения, -1 - не найден, -2 - error
+s32 flash_write_cfg(void *ptr, unsigned int nv, unsigned int id, size_t size);
 #else
-s32 flash_read_cfg(void *ptr, u8 id, u8 maxsize); // возврат: размер объекта последнего сохранения, -1 - не найден, -2 - error
-s32 flash_write_cfg(void *ptr, u8 id, u8 size);
+s32 flash_read_cfg(void *ptr, unsigned int id, size_t maxsize); // возврат: размер объекта последнего сохранения, -1 - не найден, -2 - error
+s32 flash_write_cfg(void *ptr, unsigned int id, size_t size);
 #endif
 /* ver = (SW version << 16) | (HW ) version */
 bool flash_supported_eep_ver(u32 min_ver, u32 new_ver);
