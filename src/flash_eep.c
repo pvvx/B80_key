@@ -1,8 +1,9 @@
 /*
  * flash_eep.c
  *
- *  Created on: 19/01/2015
- *      Author: pvvx
+ *  EEP Version 2.0
+ *
+ *  Author: pvvx
  */
 //#include <stdint.h>
 #include "tl_common.h"
@@ -177,6 +178,9 @@ LOCAL u32 get_addr_idobj(u32 faddr, fobj_head_t * pobj)
 	return reta;
 }
 
+#define set_flag_eep_id(b, n)	b[(n)>>3] |= 1 << ((n) & 7)
+#define check_flag_eep_id(b, n)	b[(n)>>3] &= 1 << ((n) & 7)
+
 /*=============================================================================
    FunctionName : pack_eep_fmem
 
@@ -185,19 +189,16 @@ LOCAL u32 get_addr_idobj(u32 faddr, fobj_head_t * pobj)
 FEEP_CODE_ATTR
 #if USE_EEP_BANKS
 LOCAL u32 pack_eep_fmem(u8 bank, u32 sec_faddr) {
+	eep_printf("EEP#pack: %d\n", bank);
 #else
 LOCAL u32 pack_eep_fmem(u32 sec_faddr) {
+	eep_printf("EEP#pack\n");
 #endif
-	u8 buf_id[MAX_FOBJ_SIZE];
-
+	u8 buf_id[256>>3];
 	feep_obj_t fobj;
 	fobj_head_t rh;
 	u32 fnewseg, faddr, rdaddr, wraddr, endrdaddr;
-#if USE_EEP_BANKS
-	eep_printf("EEP#pack: %d:%06x\n", bank, sec_faddr);
-#else
-	eep_printf("EEP#pack: %06x\n", sec_faddr);
-#endif
+	memset((u8 *)buf_id, 0, sizeof(buf_id));
 	// вычислить следующий сектор банка и конец текущего сектора
 	fnewseg = sec_faddr + FLASH_SECTOR_SIZE;
 	endrdaddr = fnewseg;
@@ -233,7 +234,7 @@ LOCAL u32 pack_eep_fmem(u32 sec_faddr) {
 			continue;
 		}
 		// объект уже записан в новый сектор ?
-		if(buf_id[rh.n.id]) {
+		if(check_flag_eep_id(buf_id, rh.n.id)) {
 			// уже записан в новый сектор
 			// шаг на следующий адрес в старом секторе
 			rdaddr += sizeof(rh) + rh.n.size;
@@ -253,7 +254,7 @@ LOCAL u32 pack_eep_fmem(u32 sec_faddr) {
 		fobj.h.n.id = rh.n.id;
 		if((faddr = get_addr_idobj(rdaddr, &fobj.h)) != 0) {
 			// есть такой id
-			buf_id[rh.n.id] = 1; // выставить флаг обработки
+			set_flag_eep_id(buf_id, rh.n.id); // выставить флаг обработки
 			if(fobj.h.n.size > MAX_FOBJ_SIZE) {
 				// объект не прописался (сбой во время записи данных и размера)
 				rdaddr += sizeof(rh) + MAX_FOBJ_SIZE;
@@ -294,6 +295,7 @@ s32 flash_write_cfg(void *ptr, u8 bank, u8 id, u8 size) {
 	eep_printf("EEP#wr_obj[%d]: %d,%02x\n", size, bank, id);
 #else
 s32 flash_write_cfg(void *ptr, u8 id, u8 size) {
+	eep_printf("EEP#wr_obj[%d]: %02x\n", size, id);
 #endif
 	u32 faddr, saddr;
 	feep_obj_t fobj;
@@ -393,6 +395,7 @@ s32 flash_read_cfg(void *ptr, u8 bank, u8 id, u8 maxsize) {
 	eep_printf("EEP#rd_obj[%d]: %d,%02x\n", maxsize, bank, id);
 #else
 s32 flash_read_cfg(void *ptr, u8 id, u8 maxsize) {
+	eep_printf("EEP#rd_obj[%d]: %02x\n", maxsize, id);
 #endif
 	u32 faddr, saddr;
 	fobj_head_t rh;

@@ -59,13 +59,13 @@ ifeq ($(COMPILEOS),$(LINUX_OS))
 	PYTHON ?= python3
 	TOOLS_PATH := ./tools/linux/
 	TC32_PATH := $(TOOLS_PATH)tc32/bin/
-	TC32_ELF_NM := $(TC32_PATH)tc32-elf-nm
+	TC32_ELF_NM := -t $(TC32_PATH)tc32-elf-nm
 else
 	PYTHON ?= python
 	TOOLS_PATH := ./tools/windows/
 ifeq ($(TOOLS_PATH)tc32/bin/tc32-elf-gcc.exe, $(wildcard $(TOOLS_PATH)tc32/bin/tc32-elf-gcc.exe))
 	TC32_PATH := $(TOOLS_PATH)tc32/bin/
-	TC32_ELF_NM := $(TC32_PATH)tc32-elf-nm.exe
+	TC32_ELF_NM := -t $(TC32_PATH)tc32-elf-nm.exe
 endif
 endif
 
@@ -181,7 +181,7 @@ $(BIN_FILE): $(ELF_FILE)
 	@echo ' '
 
 sizedummy: $(ELF_FILE)
-	@$(PYTHON) $(PYTOOLS_PATH)/$(MemInfo) -t $(TC32_ELF_NM) $(ELF_FILE)
+	@$(PYTHON) $(PYTOOLS_PATH)/$(MemInfo) $(TC32_ELF_NM) $(ELF_FILE)
 
 clean:
 	-$(RM) $(FLASH_IMAGE) $(ELFS) $(OBJS) $(LST) $(SIZEDUMMY) $(ELF_FILE) $(BIN_FILE) $(LST_FILE)
