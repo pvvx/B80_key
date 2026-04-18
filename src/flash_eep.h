@@ -10,26 +10,29 @@
 extern "C" {
 #endif
 
-// EEPROM IDs
-enum {
-	EEP_ID_VER		= 0, // EEP ID blk: unsigned int = minimum supported version
-	EEP_ID_DEV_CFG	= 0x01, // EEP ID device config
-	EEP_ID_DEV_NAME	= 0x02, // EEP ID device name (max 20 char)
-	EEP_ID_PINCODE	= 0x03, // EEP ID pincode
-	EEP_ID_TEMP_CFG	= 0x10, // EEP ID temperature config
-	EEP_ID_BKEY		= 0x20, // EEP ID bindkey
-	EEP_ID_DMAC		= 0x30  // EEP ID devs mac
-}EEP_ID_e;
-//-----------------------------------------------------------------------------
+//-EEPROM IDs------------------------------------------------------------------
+typedef enum {
+	EEP_ID_VER = 0,	// EEP ID blk: unsigned int = minimum supported version
+	EEP_ID_DEV_CFG, // EEP ID device config
+	EEP_ID_DEV_NAME,// EEP ID device name (max 20 char)
+	EEP_ID_PINCODE, // EEP ID pincode
+	EEP_ID_TEMP_CFG,// EEP ID temperature config
+	EEP_ID_BKEY, 	// EEP ID bindkey
+	EEP_ID_DMAC  	// EEP ID devs mac
+} EEP_ID_e;
+//--Config---------------------------------------------------------------------
 #define FLASH_BASE_ADDR			0x00000000
 #define FLASH_SECTOR_SIZE		4096
-#define FMEMORY_EEP_BANKS_SHL 	2 // кол-во секторов для работы 2,4,8,..
+#define FMEMORY_EEP_BANKS_SHL 	1 // 1<<FMEMORY_EEP_BANKS_SHL = кол-во секторов для работы 2,4,8,..
 #define FMEMORY_EEP_BANKS_SIZE	(FLASH_SECTOR_SIZE << FMEMORY_EEP_BANKS_SHL) // размер FMEMORY
-#define FMEMORY_EEP_BASE_ADDR1	(0x10000 - (FMEMORY_EEP_BANKS_SIZE)) // 0x0C000
-#define FMEMORY_EEP_BASE_ADDR2	(FMEMORY_EEP_BASE_ADDR1 + FMEMORY_EEP_BANKS_SIZE) // 0x0C000
-
+#if (FLASH_SIZE_OPTION == FLASH_SIZE_OPTION_128K)
+#define FMEMORY_EEP_BASE_ADDR1	 0x0C000
+#else
+#error "define FMEMORY_EEP_BASE_ADDR1!"
+#endif
+//#define FMEMORY_EEP_BASE_ADDR2	(FMEMORY_EEP_BASE_ADDR1 + 0x40000) //
 //--Option---------------------------------------------------------------------
-#define USE_EEP_BANKS	0
+#define USE_EEP_BANKS	0  // = 1 используется 2 банка, = 0 без банков
 #define MAX_FOBJ_SIZE	32 // максимальный размер сохраняемых объeктов (32..512)
 //-----------------------------------------------------------------------------
 typedef enum {
