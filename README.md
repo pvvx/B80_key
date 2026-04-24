@@ -9,7 +9,8 @@ Example of a BLE button with a thermometer on TLSR8208B (16KB RAM, 128KB Flash)
 * Transferring button presses and releases with a counter, SoC temperature and battery parameters
 * Connect: Pin-Code supported 
 * Telink OTA supported
-* Average consumption in operating mode is 6 µA.
+* Average consumption in operating mode is 6 µA (3.3V).
+* Power supply 2.0..4.2V (powered by Li-ion batteries).
 
 ## Button
 
